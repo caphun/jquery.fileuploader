@@ -1,8 +1,8 @@
 Yet Another File Uploader
 -------------------------
 
-With this file uploader I am trying to create a generic API for file uploading which could be supported by any programming language.
+This file uploader uses a generic API for file uploading that's supported by any programming language given a vendor script is available.
 
-At the moment this plugin provides an indeterminate progress indicator but I will be experimenting with APC, Sessions and Memecache to provide upload progress percentages without the use of Flash.
+At this point the plugin provides an indeterminate progress indicator only. I will be exploring the use of APC, Sessions and Memecache to provide upload progress percentages without the use of Flash.
 
 The vendor folder is where all backend magic lives. At the moment it only contains PHP but the idea here is to build-up a repository of vendors for other languages.
