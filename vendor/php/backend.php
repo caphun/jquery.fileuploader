@@ -2,6 +2,9 @@
 require_once ("FileUpload.class.php");
 require_once ("ImageResize.class.php");
 
+// define constants
+defined('APP_PATH') or define('APP_PATH', $_SERVER['DOCUMENT_ROOT'] . '/');
+
 // setup response
 $data = array('response' => null, 'status' => null);
 
@@ -22,7 +25,7 @@ if (count($options) > 0) {
 if (isset($_FILES)) {
 	foreach ($_FILES as $file) {
 		$upd = new FileUpload();
-		$result = $upd->Put($file, realpath(dirname(__FILE__) . '/../../../') . $folder );
+		$result = $upd->Put($file, realpath(APP_PATH . $folder) );
 		if ($result) {
 			$data['response'] = array('filename' => basename($upd->GetFile(0)), 'url' => $folder . basename($upd->GetFile(0)), 'filepath' => $upd->GetFile(0));
 			
