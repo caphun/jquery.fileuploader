@@ -19,7 +19,7 @@
 			'url': './vendor/php/backend.php',
 			'indicator': '<img src="./theme/indicator.gif" width="16" height="16" class="spinner" style="display:none" />',
 			'trash': '<img src="./theme/trash_on.gif" alt="remove" width="10" height="11" border="0" />',
-			'data': 'w=800&h=800&tw=200&th=200&upload_dir=/fileuploader/uploads/'
+			'data': 'upload_dir=/uploads/'
 		}, options);
 		
 		// append an iframe to the body for later use
@@ -29,12 +29,23 @@
 			var self = $(this),
 				form = self.wrap('<form enctype="multipart/form-data" method="post" action="'+ options.url +'" target="iframeUploadFile"></form>').parent();
 			
-			// loop through data to generate hidden data for the form submission
-			var params = options.data.split('&');
-			$.each(params, function(i,n) {
-				var item = n.split('=');
-				form.append('<input type="hidden" name="options['+item[0]+']" value="'+item[1]+'" />');
-			});
+				var params = {};
+
+				// loop through data for params
+				$.each(options.data && options.data.split('&'), function(i,n) {
+					var item = n.split('=');
+					params[item[0].toLowerCase()] = item[1];
+				});
+
+				// loop through hidden field params
+				$('input:hidden[name]').each(function(i,n) {
+					params[$(this).attr('name').toLowerCase()] = $(this).attr('value');
+				});
+
+				// generate hidden data
+				for (var i in params) {
+					form.append('<input type="hidden" name="options['+i+']" value="'+params[i]+'" />');
+				};
 			
 			self
 				.bind('change', function() {
