@@ -23,6 +23,20 @@ if (count($options) > 0) {
 }
 
 if (isset($_FILES)) {
+
+	// add support for field names such as model[property]
+	$output = array();
+	foreach ($_FILES as $k => $v) {
+		foreach (array('name', 'type', 'tmp_name', 'error', 'size') as $l) {
+			if (is_array($v[$l])) {
+				$values = array_values($v[$l]);
+				$output[$k][$l] = $values[0];
+			}
+		}
+	}
+	
+	$_FILES = $output;
+
 	foreach ($_FILES as $file) {
 		$upd = new FileUpload();
 		$result = $upd->Put($file, realpath(APP_PATH . $folder) );
