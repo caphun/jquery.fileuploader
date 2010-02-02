@@ -35,7 +35,7 @@ class FileUpload
 			$uploadDir = $filePath;
 			chmod($uploadDir, 0777);
 			$uploadName = $file['name'];
-			if (move_uploaded_file($file['tmp_name'], ($uploadDir.$uploadName))) {
+			if (move_uploaded_file($file['tmp_name'], ($uploadDir.'/'.$uploadName))) {
 				$this->fileList[] = $uploadDir . $uploadName;
 				return true;
 			} else

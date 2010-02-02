@@ -35,7 +35,10 @@ if (isset($_FILES)) {
 		}
 	}
 	
-	$_FILES = $output;
+	// do a check for this case first though
+	// if $output is not empty then write back to $_files
+	if (count($output) > 0)
+		$_FILES = $output;
 
 	foreach ($_FILES as $file) {
 		$upd = new FileUpload();

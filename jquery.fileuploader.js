@@ -14,18 +14,12 @@
 	
 	$.fn.uploader = function(options) {
 		
-		var options = $.extend({
-			'successLabel': 'OK',
-			'url': './vendor/php/backend.php',
-			'indicator': '<img src="./theme/indicator.gif" width="16" height="16" class="spinner" style="display:none" />',
-			'trash': '<img src="./theme/trash_on.gif" alt="remove" width="10" height="11" border="0" />',
-			'data': 'upload_dir=/uploads/'
-		}, options);
+		var options = $.extend({}, $.fn.uploader.defaults, options);
 		
 		// append an iframe to the body for later use
 		$('body').append('<iframe id="iframeUploadFile" name="iframeUploadFile" width="400" height="100" style="display:none"></iframe>');
 		
-		return $.each(this, function() {
+		return this.each(function() {
 			var self = $(this),
 				form = self.wrap('<form enctype="multipart/form-data" method="post" action="'+ options.url +'" target="iframeUploadFile"></form>').parent();
 			
@@ -93,6 +87,14 @@
 					form.find('.spinner').hide().end().find('input:file').val('');
 				});
 		});
+	}
+	
+	$.fn.uploader.defaults = {
+		'successLabel': 'OK',
+		'url': './vendor/php/backend.php',
+		'indicator': '<img src="./theme/indicator.gif" width="16" height="16" class="spinner" style="display:none" />',
+		'trash': '<img src="./theme/trash_on.gif" alt="remove" width="10" height="11" border="0" />',
+		'data': 'upload_dir=/uploads/'
 	}
 	
 	
