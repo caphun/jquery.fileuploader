@@ -2,10 +2,9 @@
  * jQuery uploader
  *
  * Copyright (c) 2009 Ca-Phun Ung <caphun at yelotofu dot com>
- * Dual licensed under the MIT (MIT-LICENSE.txt)
- * and GPL (GPL-LICENSE.txt) licenses.
+ * Licensed under the MIT (MIT-LICENSE.txt) license.
  *
- * http://yelotofu.com/labs/jquery/snippets/uploader/
+ * http://github.com/caphun/jquery.fileuploader
  *
  * File upload using an iframe with an indeterminate progress bar.
  */
