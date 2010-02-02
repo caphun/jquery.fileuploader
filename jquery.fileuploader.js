@@ -16,8 +16,11 @@
 		
 		var options = $.extend({}, $.fn.uploader.defaults, options);
 		
-		// append an iframe to the body for later use
-		$('body').append('<iframe id="iframeUploadFile" name="iframeUploadFile" width="400" height="100" style="display:none"></iframe>');
+		// append an iframe to the body for later use first check there isn't one already
+		if (!$('#iframeUploadFile').length) {
+			$('body').append('<iframe id="iframeUploadFile" name="iframeUploadFile" width="400" height="100" style="display:none"></iframe>');
+		}
+		
 		
 		return this.each(function() {
 			var self = $(this),
