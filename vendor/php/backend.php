@@ -9,7 +9,7 @@ defined('APP_PATH') or define('APP_PATH', $_SERVER['DOCUMENT_ROOT'] . '/');
 $data = array('response' => null, 'status' => null);
 
 // UPLOAD FILE
-$folder = '/uploads/';
+$folder = './uploads/';
 $w = $h = 0;
 $tw = $th = 0;
 
@@ -23,7 +23,7 @@ if (count($options) > 0) {
 }
 
 if (isset($_FILES)) {
-
+	
 	// add support for field names such as model[property]
 	$output = array();
 	foreach ($_FILES as $k => $v) {
@@ -35,29 +35,26 @@ if (isset($_FILES)) {
 		}
 	}
 	
-	// do a check for this case first though
-	// if $output is not empty then write back to $_files
-	if (count($output) > 0)
-		$_FILES = $output;
-
+	$_FILES = $output;
+	
 	foreach ($_FILES as $file) {
 		$upd = new FileUpload();
 		$result = $upd->Put($file, realpath(APP_PATH . $folder) );
 		if ($result) {
 			$data['response'] = array('filename' => basename($upd->GetFile(0)), 'url' => $folder . basename($upd->GetFile(0)), 'filepath' => $upd->GetFile(0));
+			$ir = new ImageResize($data['response']['filepath']);
 			
 			// create thumbnail
 			if ($tw > 0) {
-				$ir = new ImageResize($data['response']['filepath']);
 				$thumb = $ir->CreateThumb($tw, $th);
 				$data['response']['thumbnail'] = array('filename' => basename($thumb), 'url' => $folder . basename($thumb), 'filepath' => $thumb);
 			}
-			
+
 			// resize original file
 			if ($w > 0) {
 				$large = $ir->Resize($w, $h);
 			}
-			
+		
 		} else {
 			$data['response'] = $upd->ShowErrors();
 		}
@@ -70,11 +67,5 @@ $file = isset($_REQUEST['filepath']) ? $_REQUEST['filepath'] : '';
 $thumb = isset($_REQUEST['thumbnail']) ? $_REQUEST['thumbnail'] : '';
 if (file_exists($file)) { unlink($file); }
 if (file_exists($thumb)) { unlink($thumb); }
-
-if (file_exists($file)) {
-	
-	unlink($file);
-
-}
 
 echo "[".json_encode($data)."]";

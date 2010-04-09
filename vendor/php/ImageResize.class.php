@@ -24,13 +24,15 @@ class ImageResize {
 	//
 	// public method - resize function
 	//
-	function Resize($desW, $desH, $desFilename='') {
+	function Resize($desW, $desH, $desFilename='', $resize_type=0) {
 		// set destination filename
 		if ($desFilename == '') $desFilename = $this->_filename;
 		// get file attributes
 		list($width, $height, $type, $attr) = getimagesize($this->_filename);
 		// determine whether image requires resizing
 		$resize = 0;
+		$crop = 0;
+		$this->_fixDimension=$resize_type;
 		// determine image proportions
 		switch ($this->_fixDimension) {
 			case FILE_SET_WIDTH :
@@ -53,10 +55,11 @@ class ImageResize {
 				
 			case FILE_FORCE_DIM :
 				$resize = 1;
+				$crop = 1;
 				break;
 		}
 		# retreive source image
-		$src_file = imagecreatefromjpeg($this->_filename);
+		$src_file = $this->_imagecreatefrom($type, $this->_filename);
 		# create image holder
 		$des_file = imagecreatetruecolor($desW, $desH);
 		if ($resize==1) {
@@ -64,13 +67,14 @@ class ImageResize {
 			if (function_exists('imagecopyresampled')) {
 				imagecopyresampled( $des_file, $src_file, 0, 0, 0, 0, $desW, $desH, $width, $height);
 				# write to file
-				imagejpeg($des_file, $desFilename, 95);
+				$this->_image($type, $des_file, $desFilename, 95);
 			} else {
 				imagecopyresized( $des_file, $src_file, 0, 0, 0, 0, $desW, $desH, $width, $height);
 				# write to file
-				imagejpeg($des_file, $desFilename, 95);
+				$this->_image($type, $des_file, $desFilename, 95);
 			}
-		}			
+		}
+		
 		# close resource
 		imagedestroy($src_file);
 		imagedestroy($des_file);
@@ -81,7 +85,7 @@ class ImageResize {
 	// public method - CreateThumbnail creates a thumbnail for the uploaded file.
 	// it is an extension of the resize function.
 	//
-	function CreateThumb($desW, $desH) {
+	function CreateThumb($desW, $desH, $resize_type = 0) {
 		// build thumbnail filename
 		$desFilename = '';
 		$parts = pathinfo($this->_filename);
@@ -90,7 +94,36 @@ class ImageResize {
 		} elseif ($this->_prefixPos == FILE_PAD_RIGHT) {
 			$desFilename = $parts['dirname'].'/'.substr($parts['basename'],0,-(1+strpos(strrev($parts['basename']),'.'))).$this->_prefix.'.'.$parts['extension']; 
 		}
-		return $this->Resize($desW, $desH, $desFilename);
+		return $this->Resize($desW, $desH, $desFilename, $resize_type);
+	}
+	
+	function _imagecreatefrom($type, $filename) {
+		switch ($type) {
+			case IMAGETYPE_GIF : // image/gif
+				return imagecreatefromgif($filename);
+
+			case IMAGETYPE_JPEG : // image/jpeg
+				return imagecreatefromjpeg($filename);
+				
+			case IMAGETYPE_PNG : // image/png
+				return imagecreatefrompng($filename);
+		}
+	}
+	
+	function _image($type, $image, $filename, $quality=100) {
+		switch ($type) {
+			case IMAGETYPE_GIF : // image/gif
+				imagegif($image, $filename);
+				break;
+				
+			case IMAGETYPE_JPEG : // image/jpeg
+				imagejpeg($image, $filename, $quality);
+				break;
+				
+			case IMAGETYPE_PNG : // image/png
+				imagepng($image, $filename);
+				break;
+		}
 	}
 }
 ?>

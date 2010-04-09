@@ -32,10 +32,10 @@ class FileUpload
 		$errno = $this->checkFile($file);
 
 		if ($errno == FILE_NO_ERROR) {
-			$uploadDir = $filePath;
+			$uploadDir = $filePath . (substr($filePath, -1) !== '/' ? '/':'');
 			chmod($uploadDir, 0777);
 			$uploadName = $file['name'];
-			if (move_uploaded_file($file['tmp_name'], ($uploadDir.'/'.$uploadName))) {
+			if (move_uploaded_file($file['tmp_name'], ($uploadDir.$uploadName))) {
 				$this->fileList[] = $uploadDir . $uploadName;
 				return true;
 			} else
@@ -62,10 +62,10 @@ class FileUpload
 	function checkFile($f) {
 		$err = FILE_NO_ERROR;
 		// check for file extension is jpg
-		if (FILE_NO_ERROR==$err) {
+		/*if (FILE_NO_ERROR==$err) {
 			$parts = pathinfo($f['name']);
 			$err = ( ('jpg'==strtolower($parts['extension'])) || ('jpeg'==strtolower($parts['extension'])) )?FILE_NO_ERROR:FILE_WRONG_EXT;
-		}
+		}*/
 		// check for potential upload errors
 		if (FILE_NO_ERROR==$err) {
 			$err = (array_key_exists('error', $f)) ? $f['error'] : FILE_UNSPECIFIED_ERROR;

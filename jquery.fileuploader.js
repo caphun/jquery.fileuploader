@@ -23,25 +23,25 @@
 		
 		return this.each(function() {
 			var self = $(this),
-				form = self.wrap('<form enctype="multipart/form-data" method="post" action="'+ options.url +'" target="iframeUploadFile"></form>').parent();
+				form = self.wrap('<form enctype="multipart/form-data" method="post" action="'+ options.url +'" target="iframeUploadFile"></form>').parent(),
+				output = '<span style="display:none"><a target="_blank" class="file"></a> <a href="#" class="remove">'+options.trash+'</a> <input type="hidden" /></span>',
+				params = {};
 			
-				var params = {};
+			// loop through data for params
+			$.each(options.data && options.data.split('&'), function(i,n) {
+				var item = n.split('=');
+				params[item[0].toLowerCase()] = item[1];
+			});
 
-				// loop through data for params
-				$.each(options.data && options.data.split('&'), function(i,n) {
-					var item = n.split('=');
-					params[item[0].toLowerCase()] = item[1];
-				});
-
-				// loop through hidden field params
-				$('input:hidden[name]').each(function(i,n) {
-					params[$(this).attr('name').toLowerCase()] = $(this).attr('value');
-				});
-
-				// generate hidden data
-				for (var i in params) {
-					form.append('<input type="hidden" name="options['+i+']" value="'+params[i]+'" />');
-				};
+			// loop through hidden field params
+			$('input:hidden[name]').each(function(i,n) {
+				params[$(this).attr('name').toLowerCase()] = $(this).attr('value');
+			});
+			
+			// generate hidden data
+			for (var i in params) {
+				form.append('<input type="hidden" name="options['+i+']" value="'+params[i]+'" />');
+			};
 			
 			self
 				.bind('change', function() {
@@ -51,7 +51,28 @@
 				})
 				.closest('form')
 					.append(options.indicator).find('.spinner').hide();
-					
+			
+			// check if next item is an image, if so replace with output
+			var img = form.next();
+			if (img.is('img')) {
+				var img_src = img.attr('src');
+				// check if this is a _thumb
+				if (img_src.indexOf('_thumb') !== -1) {
+					url = img_src.replace('_thumb', '');
+					thumbnail_url = img_src;
+				} else {
+					url = img_src;
+					thumbnail_url = url.replace(/[^\.]\.[^\.]$/,'$1_thumb.$2');
+				}
+				filename = url.replace(/([^\/]+)$/,'$1');
+				display_output({
+					url: url,
+					filename: filename,
+					thumbnail: { url: thumbnail_url }
+				});
+				img.remove();
+			}
+			
 			$('#iframeUploadFile')
 				.bind('load', function() {
 					var json = eval($(this)[0].contentWindow.document.body.innerHTML);
@@ -59,28 +80,7 @@
 						var response = json[0].response;
 						if (json[0].status == options.successLabel) {
 
-							form.hide();
-							$('<span style="display:none"><a target="_blank" class="file"></a> <a href="#" class="remove">'+options.trash+'</a> <input type="hidden" /></span>')
-								.insertAfter(form)
-								.find('a.remove')
-									.bind('click', function() {
-										$(this).parent().remove();
-										$.post(options.url, response, function(data) {
-											// TODO: handle success or failure notification
-										});
-										form.show();
-										return false;
-									})
-								.end()
-								.find('a.file')
-									.attr('href', response.url)
-									.html(response.filename)
-								.end()
-								.find('input:hidden')
-									.attr('name', self[0].name)
-									.attr('value', response.filename)
-								.end()
-								.show();
+							display_output(response);
 
 						} else if ( response ) {
 							$('<span class="error">'+ response +'</span><br />').insertBefore(form);
@@ -88,7 +88,33 @@
 					}
 					form.find('.spinner').hide().end().find('input:file').val('');
 				});
+				
+			function display_output(response) {
+				form.hide();
+				$(output)
+					.insertAfter(form)
+					.find('a.remove')
+						.bind('click', function() {
+							$(this).parent().remove();
+							$.post(options.url, response, function(data) {
+								// TODO: handle success or failure notification
+							});
+							form.show();
+							return false;
+						})
+					.end()
+					.find('a.file')
+						.attr('href', response.url)
+						.html(response.thumbnail ? '<img src="'+ response.thumbnail.url +'" />' : response.filename)
+					.end()
+					.find('input:hidden')
+						.attr('name', self[0].name)
+						.attr('value', response.filename)
+					.end()
+					.show();
+			}
 		});
+
 	}
 	
 	$.fn.uploader.defaults = {
